@@ -9,7 +9,7 @@
       ──────────────────────────────────────────────────────
       1. Go to: https://finnhub.io/register  (FREE account)
       2. Copy your API token from the dashboard
-      3. Replace 'YOUR_FINNHUB_API_KEY_HERE' with your key
+      3. Replace 'd7sq1uhr01qorsvjka10d7sq1uhr01qorsvjka1g' with your key
    ══════════════════════════════════════════════════════ 🔑
    ============================================================ */
 const API_KEY = 'd7sq1uhr01qorsvjka10d7sq1uhr01qorsvjka1g'; // ← 📌 LINE 19 — PASTE YOUR KEY HERE
@@ -115,7 +115,7 @@ const STORAGE = {
 const API = {
   /* Check if API key is set (not placeholder) */
   isKeySet() {
-    return API_KEY && API_KEY !== 'YOUR_FINNHUB_API_KEY_HERE' && API_KEY.trim().length > 0;
+    return API_KEY && API_KEY !== 'd7sq1uhr01qorsvjka10d7sq1uhr01qorsvjka1g' && API_KEY.trim().length > 0;
   },
 
   /* Fetch real-time quote for a symbol */
