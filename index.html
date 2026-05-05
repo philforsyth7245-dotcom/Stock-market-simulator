@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuantEdge — Trading Terminal</title>
+
+  <!-- Google Fonts: Syne (UI/Headers) + JetBrains Mono (Numbers/Data) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- TradingView Lightweight Charts v3 (stable, well-documented) -->
+  <script src="https://unpkg.com/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- =============================================
+       TOP BAR: Logo | Portfolio Summary | Controls
+       ============================================= -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo">
+        <div class="logo-hex">◈</div>
+        <div class="logo-text">Quant<span class="logo-accent">Edge</span></div>
+      </div>
+      <div class="market-pill" id="marketStatus">
+        <span class="pulse-dot"></span>
+        <span id="marketLabel">LIVE</span>
+      </div>
+    </div>
+
+    <div class="topbar-center">
+      <div class="portfolio-strip">
+        <div class="strip-item">
+          <div class="strip-label">TOTAL VALUE</div>
+          <div class="strip-value" id="portfolioTotal">$10,000.00</div>
+        </div>
+        <div class="strip-sep"></div>
+        <div class="strip-item">
+          <div class="strip-label">CASH</div>
+          <div class="strip-value" id="balanceDisplay">$10,000.00</div>
+        </div>
+        <div class="strip-sep"></div>
+        <div class="strip-item">
+          <div class="strip-label">INVESTED</div>
+          <div class="strip-value" id="investedDisplay">$0.00</div>
+        </div>
+        <div class="strip-sep"></div>
+        <div class="strip-item">
+          <div class="strip-label">P&amp;L</div>
+          <div class="strip-value pnl-neutral" id="pnlDisplay">$0.00</div>
+        </div>
+        <div class="strip-sep"></div>
+        <div class="strip-item">
+          <div class="strip-label">RETURN</div>
+          <div class="strip-value pnl-neutral" id="returnDisplay">0.00%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <div class="clock-block">
+        <div class="clock-time" id="clockTime">00:00:00</div>
+        <div class="clock-date" id="clockDate">MON 01 JAN</div>
+      </div>
+      <button class="icon-btn" id="settingsBtn" title="Settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- =============================================
+       MAIN APP LAYOUT: 3-column grid
+       ============================================= -->
+  <div class="app-grid">
+
+    <!-- ── LEFT SIDEBAR ── -->
+    <aside class="sidebar">
+
+      <!-- Watchlist -->
+      <div class="sidebar-section">
+        <div class="section-header">
+          <span class="section-title">WATCHLIST</span>
+          <button class="add-btn" id="addWatchBtn" title="Add Stock">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+        </div>
+        <div class="watchlist" id="watchlist">
+          <!-- Watchlist items rendered by JS -->
+          <div class="shimmer-item"></div>
+          <div class="shimmer-item"></div>
+          <div class="shimmer-item"></div>
+          <div class="shimmer-item"></div>
+        </div>
+      </div>
+
+      <!-- Holdings -->
+      <div class="sidebar-section holdings-section">
+        <div class="section-header">
+          <span class="section-title">POSITIONS</span>
+          <span class="pos-count" id="posCount">0</span>
+        </div>
+        <div class="holdings-list" id="holdingsList">
+          <div class="empty-hint">No open positions</div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="main-panel">
+
+      <!-- Stock Header Bar -->
+      <div class="stock-header">
+        <div class="stock-identity">
+          <div class="stock-sym" id="stockSymbol">AAPL</div>
+          <div class="stock-full-name" id="stockName">Apple Inc.</div>
+        </div>
+        <div class="stock-price-block">
+          <div class="current-price" id="stockPrice">$—</div>
+          <div class="price-change neutral" id="stockChange">+$0.00 (0.00%)</div>
+        </div>
+        <div class="ohlv-stats">
+          <div class="stat-cell">
+            <div class="stat-lbl">OPEN</div>
+            <div class="stat-num" id="statOpen">—</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-lbl">HIGH</div>
+            <div class="stat-num green" id="statHigh">—</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-lbl">LOW</div>
+            <div class="stat-num red" id="statLow">—</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-lbl">PREV</div>
+            <div class="stat-num" id="statPrev">—</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-lbl">VOLUME</div>
+            <div class="stat-num" id="statVol">—</div>
+          </div>
+        </div>
+        <div class="chart-controls">
+          <!-- Chart type buttons -->
+          <div class="ctrl-group" id="chartTypeGroup">
+            <button class="ctrl-btn active" data-type="candlestick" title="Candlestick">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="7" width="6" height="10"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/></svg>
+            </button>
+            <button class="ctrl-btn" data-type="line" title="Line Chart">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 8 12 14 8 10 2 16"/></svg>
+            </button>
+            <button class="ctrl-btn" data-type="bar" title="Bar Chart">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </button>
+          </div>
+          <!-- Resolution buttons -->
+          <div class="ctrl-group" id="resGroup">
+            <button class="res-btn active" data-res="D">1D</button>
+            <button class="res-btn" data-res="W">1W</button>
+            <button class="res-btn" data-res="M">1M</button>
+          </div>
+          <!-- Refresh button -->
+          <button class="ctrl-btn" id="refreshChartBtn" title="Refresh Chart">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Chart Area -->
+      <div class="chart-area">
+        <div class="chart-container" id="chartContainer"></div>
+        <div class="chart-overlay loading-overlay" id="chartLoading">
+          <div class="spinner"></div>
+          <span>Loading chart data…</span>
+        </div>
+        <div class="chart-overlay error-overlay" id="chartError" style="display:none">
+          <div class="error-icon">⚠</div>
+          <div>No data available — using demo data</div>
+          <div class="error-sub">Set your API key in script.js line 9</div>
+        </div>
+        <div class="demo-badge" id="demoBadge" style="display:none">DEMO DATA</div>
+      </div>
+
+      <!-- Portfolio Performance Section -->
+      <div class="portfolio-perf">
+        <div class="perf-header">
+          <span class="perf-title">PORTFOLIO PERFORMANCE</span>
+          <span class="perf-badge" id="perfBadge">—</span>
+        </div>
+        <div class="portfolio-chart-wrap" id="portfolioChartContainer"></div>
+        <div class="perf-empty" id="perfEmpty">Make your first trade to track portfolio performance</div>
+      </div>
+
+    </main>
+
+    <!-- ── RIGHT TRADING PANEL ── -->
+    <aside class="trading-panel">
+
+      <!-- Tabs -->
+      <div class="panel-tabs">
+        <button class="ptab active" data-ptab="order">ORDER</button>
+        <button class="ptab" data-ptab="history">HISTORY</button>
+      </div>
+
+      <!-- ORDER TAB -->
+      <div class="ptab-content active" id="ptab-order">
+
+        <!-- Buy / Sell Toggle -->
+        <div class="order-side-toggle">
+          <button class="side-btn buy-side active" id="buyBtn" data-side="buy">BUY</button>
+          <button class="side-btn sell-side" id="sellBtn" data-side="sell">SELL</button>
+        </div>
+
+        <div class="order-form">
+          <div class="of-row">
+            <span class="of-label">SYMBOL</span>
+            <span class="of-value mono" id="orderSymbol">AAPL</span>
+          </div>
+          <div class="of-row">
+            <span class="of-label">LAST PRICE</span>
+            <span class="of-value mono" id="orderPrice">$0.00</span>
+          </div>
+
+          <!-- Quantity Control -->
+          <div class="qty-section">
+            <span class="of-label">QUANTITY</span>
+            <div class="qty-row">
+              <button class="qty-step" id="qtyMinus">−</button>
+              <input type="number" id="qtyInput" class="qty-field" value="1" min="1" max="9999" />
+              <button class="qty-step" id="qtyPlus">+</button>
+            </div>
+          </div>
+
+          <!-- Quick Qty -->
+          <div class="quick-qty">
+            <button class="qq-btn" data-qty="1">1</button>
+            <button class="qq-btn" data-qty="5">5</button>
+            <button class="qq-btn" data-qty="10">10</button>
+            <button class="qq-btn" data-qty="25">25</button>
+            <button class="qq-btn" data-qty="50">50</button>
+          </div>
+
+          <div class="of-row highlight-row">
+            <span class="of-label">TOTAL</span>
+            <span class="of-value mono accent" id="totalCost">$0.00</span>
+          </div>
+          <div class="of-row">
+            <span class="of-label">CASH BALANCE</span>
+            <span class="of-value mono" id="orderBalance">$10,000.00</span>
+          </div>
+
+          <!-- Balance usage bar -->
+          <div class="usage-bar-track">
+            <div class="usage-bar-fill" id="usageFill" style="width:0%"></div>
+          </div>
+          <div class="usage-label">
+            <span id="usagePct">0%</span> of balance
+          </div>
+
+          <!-- Holding info (for sell) -->
+          <div class="holding-info" id="holdingInfo" style="display:none">
+            <span class="of-label">YOU HOLD</span>
+            <span class="of-value mono" id="holdingShares">0 shares</span>
+          </div>
+
+          <!-- Execute Button -->
+          <button class="execute-btn" id="executeBtn">EXECUTE BUY ORDER</button>
+
+          <!-- Message area -->
+          <div class="order-msg" id="orderMsg"></div>
+        </div>
+      </div>
+
+      <!-- HISTORY TAB -->
+      <div class="ptab-content" id="ptab-history">
+        <div class="history-container" id="historyList">
+          <div class="empty-hint">No trades executed yet</div>
+        </div>
+        <button class="clear-history-btn" id="clearHistoryBtn">Clear History</button>
+      </div>
+
+    </aside>
+  </div><!-- end .app-grid -->
+
+
+  <!-- =============================================
+       SETTINGS MODAL
+       ============================================= -->
+  <div class="modal-backdrop" id="settingsModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <span class="modal-title">⚙ SETTINGS</span>
+        <button class="modal-x" id="settingsClose">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="setting-block">
+          <div class="setting-label">API KEY STATUS</div>
+          <div class="api-status-box" id="apiStatusBox">
+            <span class="api-dot" id="apiDot"></span>
+            <span id="apiStatusText">Checking…</span>
+          </div>
+          <div class="api-hint">
+            Get a free key at <a href="https://finnhub.io/register" target="_blank" class="link">finnhub.io/register</a><br/>
+            Then paste it on <strong>Line 9</strong> of <code>script.js</code>
+          </div>
+        </div>
+
+        <div class="setting-block">
+          <div class="setting-label">DEFAULT CHART TYPE</div>
+          <div class="radio-group">
+            <label class="radio-opt"><input type="radio" name="settChart" value="candlestick" checked /> Candlestick 🕯</label>
+            <label class="radio-opt"><input type="radio" name="settChart" value="line" /> Line 📈</label>
+            <label class="radio-opt"><input type="radio" name="settChart" value="bar" /> Bar 📊</label>
+          </div>
+        </div>
+
+        <div class="setting-block">
+          <div class="setting-label">WATCHLIST</div>
+          <div class="stock-chip-row" id="stockChips"></div>
+          <div class="add-sym-row">
+            <input type="text" id="newSymInput" class="sym-input" placeholder="e.g. NVDA" maxlength="10" />
+            <button class="add-sym-btn" id="addSymBtn">ADD</button>
+          </div>
+        </div>
+
+        <div class="setting-block danger">
+          <div class="setting-label danger-label">⚠ DANGER ZONE</div>
+          <button class="reset-btn" id="resetBtn">RESET ACCOUNT</button>
+          <p class="danger-note">Resets balance to $10,000 and clears all trades & holdings.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Add Stock Modal -->
+  <div class="modal-backdrop" id="quickAddModal">
+    <div class="modal-box modal-sm">
+      <div class="modal-head">
+        <span class="modal-title">ADD TO WATCHLIST</span>
+        <button class="modal-x" id="quickAddClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-block">
+          <div class="setting-label">STOCK SYMBOL</div>
+          <input type="text" id="quickSymInput" class="sym-input full" placeholder="e.g. GOOGL" maxlength="10" />
+        </div>
+        <button class="execute-btn" id="quickAddConfirm">ADD SYMBOL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Main Script -->
+  <script src="script.js"></script>
+</body>
+</html>
+
